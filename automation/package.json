@@ -11,6 +11,7 @@
     "@octokit/plugin-throttling": "^3.4.1",
     "@octokit/rest": "^18.4.0",
     "csvtojson": "^2.0.10",
+    "debug": "^4.3.1",
     "jsonexport": "^3.2.0",
     "yargs": "^16.2.0"
   },

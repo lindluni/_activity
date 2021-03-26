@@ -10,6 +10,7 @@
   },
   "plugins": ["github", "prettier"],
   "rules": {
+    "camelcase": "warn",
     "no-console": "off"
   }
 }
