@@ -63,6 +63,7 @@ async function main(auth, owner, since) {
     } catch (err) {
       debug(err);
 
+      // try three times before giving up
       if (i++ >= 3) {
         throw err;
       }

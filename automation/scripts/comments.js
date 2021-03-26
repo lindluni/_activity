@@ -29,6 +29,8 @@ async function main(auth, since) {
         console.log([comment.user.login, comment.updated_at, "comment"].join(","));
       }
     } catch (err) {
+      debug(err);
+
       // try three times before giving up
       if (i++ >= 3) {
         throw err;
