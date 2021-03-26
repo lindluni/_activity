@@ -13,7 +13,7 @@ jobs:
       INACTIVE_CLIENT_ID: "${{ secrets.INACTIVE_CLIENT_ID }}"
       INACTIVE_CLIENT_SECRET: "${{ secrets.INACTIVE_CLIENT_SECRET }}"
       INACTIVE_PRIVATE_KEY: "${{ secrets.INACTIVE_PRIVATE_KEY }}"
-      OUTFILE: "${{ runner.tmpdir }}/issues.csv"
+      OUTFILE: "${{ runner.tmpdir }}/comments.csv"
 
     steps:
       - uses: actions/checkout@v2
@@ -21,7 +21,7 @@ jobs:
         run: npm ci
 
       - run: |
-          node automation/scripts/issues.js --days 7 | tee -a $OUTFILE
+          node automation/scripts/comments.js --days 7 | tee -a $OUTFILE
 
       - uses: actions/checkout@v2
         with:

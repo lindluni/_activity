@@ -1,4 +1,4 @@
-const debug = require("debug")("inactive:issues");
+const debug = require("debug")("inactive:comments");
 const yargs = require("yargs");
 const { getGitHubApp, getAuth } = require("../lib/github");
 const { getDateFromDaysAgo } = require("../lib/utils");
