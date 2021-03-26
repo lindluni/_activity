@@ -7,8 +7,8 @@ const { getDateFromDaysAgo } = require("../lib/utils");
  * Iterate through all repositories where our GitHub App is installed, and
  * print out all issue comments created since a given time.
  */
-async function main(auth, owner, since) {
-  const app = getGitHubApp(auth, owner, since);
+async function main(auth, since) {
+  const app = getGitHubApp(auth, since);
 
   for await (const { octokit, repository } of app.eachRepository.iterator()) {
     debug(`fetching issue comments for repository ${repository.full_name}`);
@@ -37,7 +37,7 @@ async function main(auth, owner, since) {
   }
 }
 
-// DEBUG=inactive:* node scripts/template.js --owner department-of-veterans-affairs --days 91
+// DEBUG=inactive:* node scripts/comments.js --days 91
 if (require.main === module) {
   const auth = getAuth();
 
@@ -48,10 +48,10 @@ if (require.main === module) {
     demandOption: true,
   });
 
-  const { owner, days } = argv;
+  const { days } = argv;
   const since = getDateFromDaysAgo(days);
 
-  main(auth, owner, since);
+  main(auth, since);
 }
 
 module.exports = main;

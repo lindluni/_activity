@@ -3,13 +3,13 @@ const yargs = require("yargs");
 const { getGitHubApp, getAuth } = require("../lib/github");
 const { getDateFromDaysAgo } = require("../lib/utils");
 
-async function main(auth, owner, since) {
-  const app = getGitHubApp(auth, owner, since);
-  debug("Prepped and ready to DEBUG!");
+async function main(auth, since) {
+  const app = getGitHubApp(auth);
+  debug("Prepped and ready to DEBUG!", `Since ${since}`, since);
   app.log.info("Prepped and ready!");
 }
 
-// node scripts/template.js --owner department-of-veterans-affairs --days 91
+// node scripts/template.js --days 91
 if (require.main === module) {
   const auth = getAuth();
 
@@ -20,10 +20,10 @@ if (require.main === module) {
     demandOption: true,
   });
 
-  const { owner, days } = argv;
+  const { days } = argv;
   const since = getDateFromDaysAgo(days);
 
-  main(auth, owner, since);
+  main(auth, since);
 }
 
 module.exports = main;
