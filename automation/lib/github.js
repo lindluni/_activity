@@ -4,9 +4,35 @@ const { paginateRest } = require("@octokit/plugin-paginate-rest");
 const { retry } = require("@octokit/plugin-retry");
 const { throttling } = require("@octokit/plugin-throttling");
 
-// Customied Octokit that meets our needs for many requests per second
+// Customized Octokit that meets our needs for many requests per second
 const ActivtyOctokit = Octokit.plugin(throttling).plugin(retry).plugin(paginateRest);
 
+/**
+ * Read GitHub App credentials from our environment
+ */
+exports.getAuth = function getAuth() {
+  const requiredEnvs = ["INACTIVE_APP_ID", "INACTIVE_CLIENT_ID", "INACTIVE_CLIENT_SECRET", "INACTIVE_PRIVATE_KEY"];
+
+  for (const requiredEnv of requiredEnvs) {
+    if (!Object.prototype.hasOwnProperty.call(process.env, requiredEnv)) {
+      console.error(`${requiredEnv} is missing from environment.`);
+      process.exit(1);
+    }
+  }
+
+  const auth = {
+    appId: process.env.INACTIVE_APP_ID,
+    clientId: process.env.INACTIVE_CLIENT_ID,
+    clientSecret: process.env.INACTIVE_CLIENT_SECRET,
+    privateKey: process.env.INACTIVE_PRIVATE_KEY,
+  };
+
+  return auth;
+};
+
+/**
+ * Get a ready-to-go instance of our GitHub App
+ */
 exports.getGitHubApp = function getOctokit(auth) {
   return new App({
     appId: auth.appId,
