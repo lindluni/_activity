@@ -11,7 +11,13 @@ const ActivtyOctokit = Octokit.plugin(throttling).plugin(retry).plugin(paginateR
  * Read GitHub App credentials from our environment
  */
 exports.getAuth = function getAuth() {
-  const requiredEnvs = ["INACTIVE_APP_ID", "INACTIVE_CLIENT_ID", "INACTIVE_CLIENT_SECRET", "INACTIVE_PRIVATE_KEY"];
+  const requiredEnvs = [
+    "ADMIN_TOKEN",
+    "INACTIVE_APP_ID",
+    "INACTIVE_CLIENT_ID",
+    "INACTIVE_CLIENT_SECRET",
+    "INACTIVE_PRIVATE_KEY",
+  ];
 
   for (const requiredEnv of requiredEnvs) {
     if (!Object.prototype.hasOwnProperty.call(process.env, requiredEnv)) {
@@ -25,6 +31,7 @@ exports.getAuth = function getAuth() {
     clientId: process.env.INACTIVE_CLIENT_ID,
     clientSecret: process.env.INACTIVE_CLIENT_SECRET,
     privateKey: process.env.INACTIVE_PRIVATE_KEY,
+    token: process.env.ADMIN_TOKEN,
   };
 
   return auth;
@@ -33,7 +40,7 @@ exports.getAuth = function getAuth() {
 /**
  * Get a ready-to-go instance of our GitHub App
  */
-exports.getGitHubApp = function getOctokit(auth) {
+exports.getGitHubApp = function getGitHubApp(auth) {
   return new App({
     appId: auth.appId,
     privateKey: auth.privateKey,
@@ -53,5 +60,24 @@ exports.getGitHubApp = function getOctokit(auth) {
         },
       },
     }),
+  });
+};
+
+/**
+ * Get a ready-to-go instance of Octokit
+ */
+exports.getOctokit = function getOctokit(token) {
+  return new ActivtyOctokit({
+    auth: token,
+    throttle: {
+      onRateLimit: (retryAfter, options) => {
+        console.warn(`Request quota exhausted for request ${options.method} ${options.url}`);
+        console.warn(`Retrying after ${retryAfter} seconds! Retry Count: ${options.request.retryCount}`);
+        return true;
+      },
+      onAbuseLimit: (retryAfter, options) => {
+        console.warn(`Abuse detected for request ${options.method} ${options.url}`);
+      },
+    },
   });
 };
