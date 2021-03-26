@@ -18,19 +18,12 @@ if (require.main === module) {
     }
   }
 
-  const { argv } = yargs
-    .options("owner", {
-      alias: "o",
-      description: "Owner or Organization with the repos",
-      global: true,
-      demandOption: true,
-    })
-    .option("days", {
-      alias: "d",
-      description: "Days in the past to start from",
-      global: true,
-      demandOption: true,
-    });
+  const { argv } = yargs.option("days", {
+    alias: "d",
+    description: "Days in the past to start from",
+    global: true,
+    demandOption: true,
+  });
 
   // configure GitHub App auth details as object
   const app = {
