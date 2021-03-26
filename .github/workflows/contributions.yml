@@ -1,8 +1,8 @@
-name: Fetch audit log activity
+name: Fetch contributions activity
 
 on:
   schedule:
-    - cron: "42 4 * * *"
+    - cron: "42 3 * * *"
   workflow_dispatch:
 
 jobs:
@@ -14,7 +14,7 @@ jobs:
       INACTIVE_CLIENT_ID: "${{ secrets.INACTIVE_CLIENT_ID }}"
       INACTIVE_CLIENT_SECRET: "${{ secrets.INACTIVE_CLIENT_SECRET }}"
       INACTIVE_PRIVATE_KEY: "${{ secrets.INACTIVE_PRIVATE_KEY }}"
-      OUTFILE: "${{ runner.tmpdir }}/audit.csv"
+      OUTFILE: "${{ runner.tmpdir }}/contributions.csv"
 
     steps:
       - uses: actions/checkout@v2
@@ -22,7 +22,7 @@ jobs:
         run: npm ci
 
       - run: |
-          node automation/scripts/audit.js --days 7 | tee -a $OUTFILE
+          node automation/scripts/contributions.js --days 7 | tee -a $OUTFILE
 
       - uses: actions/checkout@v2
         with:
@@ -43,7 +43,7 @@ jobs:
             git config --global user.name "github-actions[bot]"
             git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add activity.csv
-            git commit -m 'adding latest audit entries'
+            git commit -m 'adding latest contributions'
             git push
           else
             echo "New file is shorter than existing; aborting..."
