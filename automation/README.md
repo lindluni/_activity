@@ -35,6 +35,17 @@ Create a new file in the [scripts](./scripts) directory, optionally using [templ
 
 If using the template, update the debugger to the name of your script, i.e. `inactive:comments` instead of `inactive:template`
 
+### Writing activity
+
+Use the following fields when writing activity as CSV
+
+| field name | description                                                     |
+| ---------- | --------------------------------------------------------------- |
+| login      | GitHub actors login                                             |
+| timestamp  | date of activity                                                |
+| event      | event that triggered activity                                   |
+| detail     | additional detail (such as URL) for activity. Use N/A for none. |
+
 ### Running it with actions
 
 Run your new script using GitHub Actions and define a new workflow.
