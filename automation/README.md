@@ -38,3 +38,7 @@ If using the template, update the debugger to the name of your script, i.e. `ina
 ### Running it with actions
 
 Run your new script using GitHub Actions and define a new workflow.
+
+### Styling
+
+Run `npm run lint` or `npm run lint:fix` before committing to enfore code styles.
