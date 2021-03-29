@@ -1,8 +1,8 @@
-name: Fetch commit activity
+name: Fetch issue comment activity
 
 on:
   schedule:
-    - cron: "18 5 * * *"
+    - cron: "42 2 * * *"
   workflow_dispatch:
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
       INACTIVE_CLIENT_ID: "${{ secrets.INACTIVE_CLIENT_ID }}"
       INACTIVE_CLIENT_SECRET: "${{ secrets.INACTIVE_CLIENT_SECRET }}"
       INACTIVE_PRIVATE_KEY: "${{ secrets.INACTIVE_PRIVATE_KEY }}"
-      OUTFILE: "${{ runner.tmpdir }}/commits.csv"
+      OUTFILE: "${{ runner.tmpdir }}/comments.csv"
 
     steps:
       - uses: actions/checkout@v2
@@ -21,7 +21,7 @@ jobs:
         run: npm ci
 
       - run: |
-          node automation/scripts/commit-history.js --days 7 --owner department-of-veterans-affairs | tee -a $OUTFILE
+          node automation/scripts/comments.js --days 7 | tee -a $OUTFILE
 
       - uses: actions/checkout@v2
         with:
