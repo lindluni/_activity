@@ -18,6 +18,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install dependencies
         run: npm ci
+        working-directory: automation
       - name: Collect Comments
         run: node automation/scripts/comments.js --days 7 | tee -a $OUTFILE
         env:
