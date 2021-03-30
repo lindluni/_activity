@@ -15,7 +15,6 @@ jobs:
       INACTIVE_CLIENT_SECRET: ${{ secrets.INACTIVE_CLIENT_SECRET }}
       INACTIVE_PRIVATE_KEY: ${{ secrets.INACTIVE_PRIVATE_KEY }}
       ORG: ${{ github.repository_owner }}
-
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies

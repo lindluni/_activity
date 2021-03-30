@@ -14,7 +14,6 @@ jobs:
       INACTIVE_CLIENT_ID: ${{ secrets.INACTIVE_CLIENT_ID }}
       INACTIVE_CLIENT_SECRET: ${{ secrets.INACTIVE_CLIENT_SECRET }}
       INACTIVE_PRIVATE_KEY: ${{ secrets.INACTIVE_PRIVATE_KEY }}
-
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies

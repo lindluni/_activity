@@ -16,7 +16,6 @@ jobs:
       INACTIVE_PRIVATE_KEY: ${{ secrets.INACTIVE_PRIVATE_KEY }}
       ORG: ${{ github.repository_owner }}
       ORG_ID: MDEyOk9yZ2FuaXphdGlvbjU0MjE1NjM=
-
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
