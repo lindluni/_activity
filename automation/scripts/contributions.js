@@ -11,10 +11,10 @@ function hasAnyContributions({ contributionsCollection: m }) {
  * Iterate through all repositories where our GitHub App is installed, and
  * print out all issue comments created since a given time.
  */
-async function main(auth, owner, organizationId, since) {
+async function main(auth, owner, organizationID, since) {
   const octokit = getOctokit(auth.token);
 
-  debug(`fetching contributions log for ${owner} and ${organizationId} since ${since}`);
+  debug(`fetching contributions log for ${owner} and ${organizationID} since ${since}`);
 
   const CONTRIBUTIONS_QUERY = `query(
     $org: String!
@@ -51,7 +51,7 @@ async function main(auth, owner, organizationId, since) {
     try {
       const response = await octokit.graphql(CONTRIBUTIONS_QUERY, {
         org: owner,
-        org_id: organizationId,
+        org_id: organizationID,
         after: cursor,
         from: since,
       });
@@ -92,17 +92,17 @@ if (require.main === module) {
       global: true,
       demandOption: true,
     })
-    .option("organizationId", {
+    .option("organization-id", {
       alias: "i",
       description: "GitHub organization GraphQL node id",
       global: true,
       demandOption: true,
     });
 
-  const { days, organization, organizationId } = argv;
+  const { days, organization, organizationID } = argv;
   const since = getDateFromDaysAgo(days);
 
-  main(auth, organization, organizationId, since);
+  main(auth, organization, organizationID, since);
 }
 
 module.exports = main;

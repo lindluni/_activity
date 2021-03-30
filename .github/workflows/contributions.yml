@@ -14,6 +14,8 @@ jobs:
       INACTIVE_CLIENT_ID: ${{ secrets.INACTIVE_CLIENT_ID }}
       INACTIVE_CLIENT_SECRET: ${{ secrets.INACTIVE_CLIENT_SECRET }}
       INACTIVE_PRIVATE_KEY: ${{ secrets.INACTIVE_PRIVATE_KEY }}
+      ORG: ${{ github.repository_owner }}
+      ORG_ID: MDEyOk9yZ2FuaXphdGlvbjU0MjE1NjM=
 
     steps:
       - uses: actions/checkout@v2
@@ -21,7 +23,7 @@ jobs:
         run: npm ci
         working-directory: automation
       - name: Collect Contributions
-        run: node automation/scripts/contributions.js --days 7 | tee -a $OUTFILE
+        run: node automation/scripts/contributions.js --organization $ORG --organization-id $ORG_ID --days 7 | tee -a $OUTFILE
         env:
           OUTFILE: ${{ runner.temp }}/contributions.csv
       - uses: actions/checkout@v2
