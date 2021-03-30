@@ -30,7 +30,6 @@ jobs:
           ref: activity
       - name: Update activity.csv
         run: |
-          set -x
           CURRENT_HEADER=$(head -n1 ./activity.csv)
           CURRENT_LENGTH=$(wc -l < ./activity.csv | xargs)
 

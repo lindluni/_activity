@@ -9,6 +9,7 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     env:
+      ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
       INACTIVE_APP_ID: ${{ secrets.INACTIVE_APP_ID }}
       INACTIVE_CLIENT_ID: ${{ secrets.INACTIVE_CLIENT_ID }}
       INACTIVE_CLIENT_SECRET: ${{ secrets.INACTIVE_CLIENT_SECRET }}
