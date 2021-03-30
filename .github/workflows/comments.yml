@@ -29,13 +29,13 @@ jobs:
       - name: Update activity.csv
         run: |
           CURRENT_HEADER=$(head -n1 ./activity.csv)
-          CURRENT_LENGTH=$(wc -l ./activity.csv)
+          CURRENT_LENGTH=$(wc -l < ./activity.csv | xargs)
 
           sed '1d;$d' ./activity.csv >> $OUTFILE
           echo $CURRENT_HEADER > ./activity.csv
 
           sort -r -t, -k2 < $OUTFILE | sort -u -t, -k1,1 | sort -r -t, -k2 > ./activity.csv
-          NEW_LENGTH=$(wc -l ./activity.csv)
+          NEW_LENGTH=$(wc -l < ./activity.csv | xargs)
 
           if [ "$NEW_LENGTH" -ge "$CURRENT_LENGTH" ]; then
             git config --global user.name "github-actions[bot]"
