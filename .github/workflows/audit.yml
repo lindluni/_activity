@@ -14,7 +14,6 @@ jobs:
       INACTIVE_CLIENT_ID: ${{ secrets.INACTIVE_CLIENT_ID }}
       INACTIVE_CLIENT_SECRET: ${{ secrets.INACTIVE_CLIENT_SECRET }}
       INACTIVE_PRIVATE_KEY: ${{ secrets.INACTIVE_PRIVATE_KEY }}
-      OUTFILE: ${{ runner.temp }}/audit.csv
 
     steps:
       - uses: actions/checkout@v2
@@ -22,6 +21,8 @@ jobs:
         run: npm ci
       - name: Collect Audit Log
         run: node automation/scripts/audit.js --days 7 | tee -a $OUTFILE
+        env:
+          OUTFILE: ${{ runner.temp }}/audit.csv
       - uses: actions/checkout@v2
         with:
           ref: activity
@@ -46,3 +47,5 @@ jobs:
             echo "New file is shorter than existing; aborting..."
             exit 1
           fi
+        env:
+          OUTFILE: ${{ runner.temp }}/audit.csv
