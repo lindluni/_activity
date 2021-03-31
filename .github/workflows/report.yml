@@ -1,0 +1,25 @@
+name: Send User Inactivity Report
+
+on:
+  schedule:
+    - cron: "7 9 * * 0"
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    env:
+      ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+      INACTIVE_APP_ID: "${{ secrets.INACTIVE_APP_ID }}"
+      INACTIVE_CLIENT_ID: "${{ secrets.INACTIVE_CLIENT_ID }}"
+      INACTIVE_CLIENT_SECRET: "${{ secrets.INACTIVE_CLIENT_SECRET }}"
+      INACTIVE_PRIVATE_KEY: "${{ secrets.INACTIVE_PRIVATE_KEY }}"
+      ORG: ${{ github.repository_owner }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: npm ci
+        working-directory: automation
+      - run: node automation/scripts/report.js --owner $ORG
+        env:
+          ACTIVITY_FILE: ${{ runner.temp }}/activity.csv
