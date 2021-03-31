@@ -20,6 +20,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
         working-directory: automation
+      - run: node automation/scripts/filter-activity.js > $ACTIVITY_FILE
+        env:
+            ACTIVITY_FILE: ${{ runner.temp}}/activity.csv
       - run: node automation/scripts/report.js --owner $ORG
         env:
           ACTIVITY_FILE: ${{ runner.temp }}/activity.csv
