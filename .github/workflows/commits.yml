@@ -22,7 +22,7 @@ jobs:
         working-directory: automation
       - run: node automation/scripts/commit-history.js --days 7 --owner $ORG | tee -a $OUTFILE
         env:
-          OUTFILE: ${{ runner.tmpdir }}/commits.csv
+          OUTFILE: ${{ runner.temp }}/commits.csv
       - uses: actions/checkout@v2
         with:
           ref: activity
