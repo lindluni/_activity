@@ -22,7 +22,7 @@ jobs:
         working-directory: automation
       - run: node automation/scripts/releases.js --days 7 --owner $ORG | tee -a $OUTFILE
         env:
-          OUTFILE: ${{ runner.tmpdir }}/releases.csv
+          OUTFILE: ${{ runner.temp }}/releases.csv
       - uses: actions/checkout@v2
         with:
           ref: activity
