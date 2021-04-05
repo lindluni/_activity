@@ -10,12 +10,11 @@
     "@octokit/plugin-retry": "^3.0.7",
     "@octokit/plugin-throttling": "^3.4.1",
     "@octokit/rest": "^18.4.0",
-    "csvtojson": "^2.0.10",
     "debug": "^4.3.1",
-    "jsonexport": "^3.2.0",
     "yargs": "^16.2.0"
   },
   "devDependencies": {
+    "@types/yargs": "^16.0.1",
     "eslint": "^7.22.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-github": "^4.1.2",

@@ -1,11 +1,11 @@
 const debug = require("debug")("inactive:releases");
 const yargs = require("yargs");
-const { getGitHubApp, getAuth } = require("../lib/github");
-const { getDateFromDaysAgo } = require("../lib/utils");
+const {getGitHubApp, getAuth} = require("../lib/github");
+const {getDateFromDaysAgo} = require("../lib/utils");
 
 async function main(auth, owner, since) {
     const app = getGitHubApp(auth, since);
-    for await (const { octokit, repository } of app.eachRepository.iterator()) {
+    for await (const {octokit, repository} of app.eachRepository.iterator()) {
         const repo = repository;
         const client = octokit;
 
@@ -22,7 +22,7 @@ async function main(auth, owner, since) {
                 }
                 let login = release.author.login;
 
-                console.log(`${login},${release.published_at},release`);
+                console.log(`${login},${release.published_at},release,N/A`);
             }
         } catch (error) {
             debug(error);
@@ -30,7 +30,7 @@ async function main(auth, owner, since) {
     }
 }
 
-const getReleases = async ({ client, owner, repo }) => {
+const getReleases = async ({client, owner, repo}) => {
     return await client.paginate("GET /repos/{owner}/{repo}/releases", {
         owner,
         repo,
@@ -40,7 +40,7 @@ const getReleases = async ({ client, owner, repo }) => {
 if (require.main === module) {
     const auth = getAuth();
 
-    const { argv } = yargs
+    const {argv} = yargs
         .option("days", {
             alias: "d",
             description: "Days in the past to start from",
@@ -54,7 +54,7 @@ if (require.main === module) {
             demandOption: true,
         });
 
-    const { days, owner } = argv;
+    const {days, owner} = argv;
     const since = getDateFromDaysAgo(days);
 
     main(auth, owner, since);
