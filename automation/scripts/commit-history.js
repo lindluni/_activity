@@ -1,14 +1,11 @@
-const csv = require("csvtojson");
-const jsonexport = require("jsonexport");
-
 const debug = require("debug")("inactive:commits");
 const yargs = require("yargs");
-const { getGitHubApp, getAuth } = require("../lib/github");
-const { getDateFromDaysAgo } = require("../lib/utils");
+const {getGitHubApp, getAuth} = require("../lib/github");
+const {getDateFromDaysAgo} = require("../lib/utils");
 
 async function main(auth, owner, since) {
     const app = getGitHubApp(auth, since);
-    for await (const { octokit, repository } of app.eachRepository.iterator()) {
+    for await (const {octokit, repository} of app.eachRepository.iterator()) {
         const repo = repository;
         const client = octokit;
 
@@ -41,14 +38,14 @@ async function main(auth, owner, since) {
     }
 }
 
-const getBranches = async ({ client, owner, repo }) => {
+const getBranches = async ({client, owner, repo}) => {
     return await client.paginate("GET /repos/{owner}/{repo}/branches", {
         owner,
         repo,
     });
 };
 
-const getCommitsForBranch = async ({ client, owner, repo, branch, since }) => {
+const getCommitsForBranch = async ({client, owner, repo, branch, since}) => {
     return await client.paginate("GET /repos/{owner}/{repo}/commits", {
         owner,
         repo,
@@ -60,7 +57,7 @@ const getCommitsForBranch = async ({ client, owner, repo, branch, since }) => {
 if (require.main === module) {
     const auth = getAuth();
 
-    const { argv } = yargs
+    const {argv} = yargs
         .option("days", {
             alias: "d",
             description: "Days in the past to start from",
@@ -74,7 +71,7 @@ if (require.main === module) {
             demandOption: true,
         });
 
-    const { days, owner } = argv;
+    const {days, owner} = argv;
     const since = getDateFromDaysAgo(days);
 
     main(auth, owner, since);
