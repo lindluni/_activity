@@ -14,12 +14,12 @@
     "yargs": "^16.2.0"
   },
   "devDependencies": {
+    "@types/yargs": "^16.0.1",
     "eslint": "^7.22.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-github": "^4.1.2",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.1",
-    "prettier": "^2.2.1",
-    "@types/yargs": "^16.0.1"
+    "prettier": "^2.2.1"
   }
 }

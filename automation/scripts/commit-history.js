@@ -28,7 +28,7 @@ async function main(auth, owner, since) {
 
                 for (let commit of commits) {
                     if (commit.author && commit.commit.author.date) {
-                        console.log(`${commit.author.login},${commit.commit.author.date},${commit.html_url}`);
+                        console.log(`${commit.author.login},${commit.commit.author.date},${commit.html_url},N/A`);
                     }
                 }
             }
