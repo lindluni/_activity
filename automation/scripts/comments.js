@@ -2,14 +2,16 @@ const debug = require("debug")("inactive:comments");
 const yargs = require("yargs");
 const {getGitHubApp, getAuth} = require("../lib/github");
 const {getDateFromDaysAgo} = require("../lib/utils");
+const database = require("../lib/database")
 
 /**
  * Iterate through all repositories where our GitHub App is installed, and
  * print out all issue comments created since a given time.
  */
 async function main(auth, since) {
-    const app = getGitHubApp(auth, since);
+    const commentsLastUpdated = new Date();
 
+    const app = getGitHubApp(auth, since);
     for await (const {octokit, repository} of app.eachRepository.iterator()) {
         debug(`fetching issue comments for repository ${repository.full_name}`);
         let i = 0;
@@ -27,6 +29,7 @@ async function main(auth, since) {
 
             for (const comment of comments) {
                 console.log([comment.user.login, comment.updated_at, "comment", "N/A"].join(","));
+                await database.updateUser(comment.user.login, comment.updated_at, "comment", comment.html_url)
             }
         } catch (err) {
             debug(err);
@@ -37,6 +40,7 @@ async function main(auth, since) {
             }
         }
     }
+    await database.setLastUpdated("comments", commentsLastUpdated.toISOString())
 }
 
 // DEBUG=inactive:* node scripts/comments.js --days 91

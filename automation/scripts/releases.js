@@ -2,8 +2,10 @@ const debug = require("debug")("inactive:releases");
 const yargs = require("yargs");
 const {getGitHubApp, getAuth} = require("../lib/github");
 const {getDateFromDaysAgo} = require("../lib/utils");
+const database = require("../lib/database")
 
 async function main(auth, owner, since) {
+    const releasesLastUpdate = new Date();
     const app = getGitHubApp(auth, since);
     for await (const {octokit, repository} of app.eachRepository.iterator()) {
         const repo = repository;
@@ -20,14 +22,14 @@ async function main(auth, owner, since) {
                 if (new Date(release.published_at) < new Date(since)) {
                     break;
                 }
-                let login = release.author.login;
-
                 console.log(`${login},${release.published_at},release,N/A`);
+                await database.updateUser(login, release.published_at, "release", release.html_url)
             }
         } catch (error) {
             debug(error);
         }
     }
+    await database.setLastUpdated("releases", releasesLastUpdate.toISOString())
 }
 
 const getReleases = async ({client, owner, repo}) => {
