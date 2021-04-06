@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  fetch:
+  fetch-contributions:
     runs-on: ubuntu-latest
     env:
       ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
@@ -19,14 +19,20 @@ jobs:
       OUTFILE: /tmp/db.json
     steps:
       - uses: actions/checkout@v2
-      - name: Install dependencies
-        run: npm ci
-        working-directory: automation
-      - name: Collect Contributions
-        run: node automation/scripts/contributions.js --organization $ORG --organization-id $ORG_ID && mv db.json $OUTFILE
+        with:
+          path: master
       - uses: actions/checkout@v2
         with:
           ref: activity
+          path: activity
+      - name: Stage db.json
+        run: mv ${{ github.workspace }}/activity/db.json ${{ github.workspace }}/master/db.json
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ${{ github.workspace }}/master/automation
+      - name: Collect Contributions
+        run: node automation/scripts/contributions.js --organization $ORG --organization-id $ORG_ID && mv db.json $OUTFILE
+        working-directory: ${{ github.workspace }}/master
       - name: Update db.json
         run: |
           rm -rf db.json
@@ -36,3 +42,4 @@ jobs:
           git add db.json
           git commit -m 'adding latest contributions'
           git push
+        working-directory: ${{ github.workspace }}/activity
