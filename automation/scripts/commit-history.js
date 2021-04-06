@@ -1,10 +1,12 @@
 const yargs = require("yargs");
 const {getGitHubApp, getAuth} = require("../lib/github");
-const {getDateFromDaysAgo} = require("../lib/utils");
+const utils = require("../lib/utils");
 const database = require("../lib/database")
 
-async function main(auth, owner, since) {
+async function main(auth, owner, days) {
     const commitsLastUpdated = new Date();
+    const since = await utils.getSince(utils.TYPE_COMMITS, days)
+
     const app = getGitHubApp(auth, since);
     let processed = 0;
     for await (const {octokit, repository} of app.eachRepository.iterator()) {
@@ -30,7 +32,7 @@ async function main(auth, owner, since) {
                 console.log(`Retrieved ${commits.length} commmits`)
                 for (let commit of commits) {
                     if (commit.author && commit.commit.author.date) {
-                        console.log(`${commit.author.login},${commit.commit.author.date},${commit.html_url},N/A`);
+                        console.log(`${commit.author.login},${commit.commit.author.date},commit,${commit.html_url}`);
                         await database.updateUser(commit.author.login, commit.commit.author.date, "commit", commit.html_url)
                     }
                 }
@@ -49,8 +51,7 @@ if (require.main === module) {
         .option("days", {
             alias: "d",
             description: "Days in the past to start from",
-            global: true,
-            demandOption: true,
+            global: true
         })
         .options("owner", {
             alias: "o",
@@ -59,10 +60,7 @@ if (require.main === module) {
             demandOption: true,
         });
 
-    const {days, owner} = argv;
-    const since = getDateFromDaysAgo(days);
-
-    main(auth, owner, since);
+    main(auth, argv.owner, argv.days);
 }
 
 module.exports = main;

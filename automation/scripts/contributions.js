@@ -1,7 +1,7 @@
 const debug = require("debug")("inactive:audit");
 const yargs = require("yargs");
 const {getAuth, getOctokit} = require("../lib/github");
-const {getDateFromDaysAgo} = require("../lib/utils");
+const utils = require("../lib/utils");
 const database = require("../lib/database")
 
 function hasAnyContributions({contributionsCollection: m}) {
@@ -12,8 +12,9 @@ function hasAnyContributions({contributionsCollection: m}) {
  * Iterate through all repositories where our GitHub App is installed, and
  * print out all issue comments created since a given time.
  */
-async function main(auth, owner, organizationID, since) {
+async function main(auth, owner, organizationID, days) {
     const octokit = getOctokit(auth.token);
+    const since = await utils.getSince(utils.TYPE_CONTRIBUTIONS, days)
 
     debug(`fetching contributions log for ${owner} and ${organizationID} since ${since}`);
 
@@ -78,7 +79,7 @@ async function main(auth, owner, organizationID, since) {
                             }
                         }
                     }
-                    console.log([member.login, lastUpdated.toISOString(), "contribution", "N/A"].join(","));
+                    console.log([member.login, lastUpdated.toISOString(), "contribution"].join(","));
                     await database.updateUser(member.login, lastUpdated.toISOString(), "contribution")
                 }
             }
@@ -105,8 +106,7 @@ if (require.main === module) {
         .option("days", {
             alias: "d",
             description: "Days in the past to start from",
-            global: true,
-            demandOption: true,
+            global: true
         })
         .option("organization", {
             alias: "o",
@@ -121,10 +121,7 @@ if (require.main === module) {
             demandOption: true,
         });
 
-    const {days, organization, organizationID} = argv;
-    const since = getDateFromDaysAgo(days);
-
-    main(auth, organization, organizationID, since);
+    main(auth, argv.organization, argv.organizationID, argv.days);
 }
 
 module.exports = main;

@@ -1,15 +1,16 @@
 const debug = require("debug")("inactive:audit");
 const yargs = require("yargs");
 const {getAuth, getOctokit} = require("../lib/github");
-const {getDateFromDaysAgo} = require("../lib/utils");
+const utils = require("../lib/utils");
 const database = require("../lib/database")
 
 /**
  * Iterate through all repositories where our GitHub App is installed, and
  * print out all issue comments created since a given time.
  */
-async function main(auth, owner, since) {
+async function main(auth, owner, days) {
     const octokit = getOctokit(auth.token);
+    const since = await utils.getSince(utils.TYPE_AUDIT, days)
 
     debug(`fetching audit log for ${owner} since ${since}`);
 
@@ -35,7 +36,7 @@ async function main(auth, owner, since) {
       }
     }
   }`;
-    
+
     const auditsLastUpdated = new Date();
     const query = `created:>=${since} action:org.add_member`;
     let cursor = null;
@@ -53,8 +54,8 @@ async function main(auth, owner, since) {
             debug(response);
 
             for (const audit of response.organization.auditLog.nodes) {
-                const {__typename, createdAt, userLogin} = audit;
-                console.log([userLogin, createdAt, "audit", __typename].join(","));
+                const {createdAt, userLogin} = audit;
+                console.log([userLogin, createdAt, "audit"].join(","));
                 await database.updateUser(userLogin, createdAt, "audit")
             }
             cursor = response.organization.auditLog.pageInfo.endCursor;
@@ -79,8 +80,7 @@ if (require.main === module) {
         .option("days", {
             alias: "d",
             description: "Days in the past to start from",
-            global: true,
-            demandOption: true,
+            global: true
         })
         .option("organization", {
             alias: "o",
@@ -89,10 +89,7 @@ if (require.main === module) {
             demandOption: true,
         });
 
-    const {days, organization} = argv;
-    const since = getDateFromDaysAgo(days);
-
-    main(auth, organization, since);
+    main(auth, argv.organization, argv.days);
 }
 
 module.exports = main;

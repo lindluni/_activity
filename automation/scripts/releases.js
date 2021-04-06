@@ -1,29 +1,27 @@
 const debug = require("debug")("inactive:releases");
 const yargs = require("yargs");
 const {getGitHubApp, getAuth} = require("../lib/github");
-const {getDateFromDaysAgo} = require("../lib/utils");
+const utils = require("../lib/utils");
 const database = require("../lib/database")
 
-async function main(auth, owner, since) {
+async function main(auth, owner, days) {
     const releasesLastUpdate = new Date();
+    const since = await utils.getSince(utils.TYPE_RELEASES, days)
+
     const app = getGitHubApp(auth, since);
     for await (const {octokit, repository} of app.eachRepository.iterator()) {
-        const repo = repository;
-        const client = octokit;
-
         try {
-            const releases = await getReleases({
-                client,
+            const releases = await octokit.paginate("GET /repos/{owner}/{repo}/releases", {
                 owner: owner,
-                repo: repo.name,
+                repo: repository.name,
             });
 
             for (let release of releases) {
                 if (new Date(release.published_at) < new Date(since)) {
                     break;
                 }
-                console.log(`${login},${release.published_at},release,N/A`);
-                await database.updateUser(login, release.published_at, "release", release.html_url)
+                console.log(`${release.author.login},${release.published_at},release,${release.html_url}`);
+                await database.updateUser(release.author.login, release.published_at, "release", release.html_url)
             }
         } catch (error) {
             debug(error);
@@ -32,22 +30,13 @@ async function main(auth, owner, since) {
     await database.setLastUpdated("releases", releasesLastUpdate.toISOString())
 }
 
-const getReleases = async ({client, owner, repo}) => {
-    return await client.paginate("GET /repos/{owner}/{repo}/releases", {
-        owner,
-        repo,
-    });
-};
-
 if (require.main === module) {
     const auth = getAuth();
-
     const {argv} = yargs
         .option("days", {
             alias: "d",
             description: "Days in the past to start from",
-            global: true,
-            demandOption: true,
+            global: true
         })
         .options("owner", {
             alias: "o",
@@ -56,10 +45,7 @@ if (require.main === module) {
             demandOption: true,
         });
 
-    const {days, owner} = argv;
-    const since = getDateFromDaysAgo(days);
-
-    main(auth, owner, since);
+    main(auth, argv.owner, argv.days);
 }
 
 module.exports = main;

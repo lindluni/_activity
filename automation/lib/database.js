@@ -102,6 +102,14 @@ exports.reconcileUsers = async (users) => {
     }
 }
 
+exports.getLastUpdated = async (type) => {
+    try {
+        return await db.get(`lastUpdated.${type}`).value()
+    } catch (error) {
+        throw error
+    }
+}
+
 const getUser = async (login) => {
     try {
         return await db.get(`users.${login}`).value()
