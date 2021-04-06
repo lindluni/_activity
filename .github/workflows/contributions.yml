@@ -2,7 +2,7 @@ name: Fetch contributions activity
 
 on:
   schedule:
-    - cron: "42 3 * * *"
+    - cron: "15 5 * * *"
   workflow_dispatch:
 
 jobs:
@@ -16,38 +16,23 @@ jobs:
       INACTIVE_PRIVATE_KEY: ${{ secrets.INACTIVE_PRIVATE_KEY }}
       ORG: ${{ github.repository_owner }}
       ORG_ID: MDEyOk9yZ2FuaXphdGlvbjU0MjE1NjM=
+      OUTFILE: /tmp/db.json
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
         run: npm ci
         working-directory: automation
       - name: Collect Contributions
-        run: node automation/scripts/contributions.js --organization $ORG --organization-id $ORG_ID --days 7 | tee -a $OUTFILE
-        env:
-          OUTFILE: ${{ runner.temp }}/contributions.csv
+        run: node automation/scripts/contributions.js --organization $ORG --organization-id $ORG_ID && mv db.json $OUTFILE
       - uses: actions/checkout@v2
         with:
           ref: activity
-      - name: Update activity.csv
+      - name: Update db.json
         run: |
-          CURRENT_HEADER=$(head -n1 ./activity.csv)
-          CURRENT_LENGTH=$(wc -l < ./activity.csv | xargs)
-
-          sed '1d;$d' ./activity.csv >> $OUTFILE
-          echo $CURRENT_HEADER > ./activity.csv
-
-          sort -r -t, -k2 < $OUTFILE | sort -u -t, -k1,1 | sort -r -t, -k2 > ./activity.csv
-          NEW_LENGTH=$(wc -l < ./activity.csv | xargs)
-
-          if [ "$NEW_LENGTH" -ge "$CURRENT_LENGTH" ]; then
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add activity.csv
-            git commit -m 'adding latest contributions'
-            git push
-          else
-            echo "New file is shorter than existing; aborting..."
-            exit 1
-          fi
-        env:
-          OUTFILE: ${{ runner.temp }}/contributions.csv
+          rm -rf db.json
+          mv $OUTFILE ./db.json
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add db.json
+          git commit -m 'adding latest contributions'
+          git push

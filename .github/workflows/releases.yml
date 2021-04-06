@@ -2,7 +2,7 @@ name: Fetch release activity
 
 on:
   schedule:
-    - cron: "37 6 * * *"
+    - cron: "15 6 * * *"
   workflow_dispatch:
 
 jobs:
@@ -15,37 +15,22 @@ jobs:
       INACTIVE_CLIENT_SECRET: "${{ secrets.INACTIVE_CLIENT_SECRET }}"
       INACTIVE_PRIVATE_KEY: "${{ secrets.INACTIVE_PRIVATE_KEY }}"
       ORG: ${{ github.repository_owner }}
+      OUTFILE: /tmp/db.json
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
         run: npm ci
         working-directory: automation
-      - run: node automation/scripts/releases.js --days 7 --owner $ORG | tee -a $OUTFILE
-        env:
-          OUTFILE: ${{ runner.temp }}/releases.csv
+      - run: node automation/scripts/releases.js --owner $ORG && mv db.json $OUTFILE
       - uses: actions/checkout@v2
         with:
           ref: activity
-      - name: Update activity.csv
+      - name: Update db.json
         run: |
-          CURRENT_HEADER=$(head -n1 ./activity.csv)
-          CURRENT_LENGTH=$(wc -l < ./activity.csv | xargs)
-
-          sed '1d;$d' ./activity.csv >> $OUTFILE
-          echo $CURRENT_HEADER > ./activity.csv
-
-          sort -r -t, -k2 < $OUTFILE | sort -u -t, -k1,1 | sort -r -t, -k2 > ./activity.csv
-          NEW_LENGTH=$(wc -l < ./activity.csv | xargs)
-
-          if [ "$NEW_LENGTH" -ge "$CURRENT_LENGTH" ]; then
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add activity.csv
-            git commit -m 'adding latest releases'
-            git push
-          else
-            echo "New file is shorter than existing; aborting..."
-            exit 1
-          fi
-        env:
-          OUTFILE: ${{ runner.temp }}/releases.csv
+          rm -rf db.json
+          mv $OUTFILE ./db.json
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add db.json
+          git commit -m 'adding latest releases'
+          git push
