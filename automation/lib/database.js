@@ -29,9 +29,10 @@ exports.updateUser = async (login, createdAt, type, url) => {
     try {
         const existingUser = await getUser(login)
         if (existingUser) {
-            const lastUpdated = new Date(existingUser.lastUpdated)
-            if (createdAt > lastUpdated) {
-                existingUser.url = url
+            const existingDate = new Date(existingUser.lastUpdated)
+            const newDate = new Date(createdAt)
+            if (newDate > existingDate) {
+                existingUser['url'] = url
                 existingUser.lastUpdated = createdAt
                 existingUser.type = type
                 await db.set(`users.${login}`, existingUser).write()
