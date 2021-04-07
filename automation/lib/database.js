@@ -79,6 +79,8 @@ exports.getExpiredUsers = async (users) => {
                     _users[user.login]['login'] = user.login
                     expiredUsers.push(_users[user.login])
                 }
+            } else {
+                expiredUsers.push({login: user.login, lastUpdated: "never", type: "none"})
             }
         }
         return expiredUsers
