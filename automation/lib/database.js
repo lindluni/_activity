@@ -91,15 +91,23 @@ exports.getExpiredUsers = async (users) => {
     }
 }
 
-exports.reconcileUsers = async (users) => {
+exports.reconcileUsers = async () => {
     try {
         const date = new Date()
         await fs.copyFileSync('db.json', `db-${date.getFullYear()}-${date.getDay()}-${date.getMonth()}.json`)
-
-        const _users = await db.get('users').value()
-        for (let user of Object.keys(_users)) {
-            if (!users.includes(user)) {
-                await db.unset(`users.${user}`).write
+        date.setDate(date.getDate() - 90)
+        const users = await db.get('users').value()
+        for (let userKey of Object.keys(users)) {
+            const user = users[userKey]
+            if (user.bot) {
+                console.log(`Removing app user from database: ${userKey}`)
+                await db.unset(`users.${userKey}`).write()
+                continue
+            }
+            const lastUpdated = new Date(user.lastUpdated)
+            if (lastUpdated < date) {
+                console.log(`Removing expired user from database: ${userKey}`)
+                await db.unset(`users.${userKey}`).write()
             }
         }
     } catch (error) {
@@ -122,4 +130,3 @@ const getUser = async (login) => {
         throw error
     }
 }
-
