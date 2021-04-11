@@ -33,10 +33,15 @@ If you still require access after you have been removed, [follow this guide to r
 
 For questions please respond here or email us at va-delivery@github.com`,
             });
+            await sleep(500)
         }
     } catch (error) {
         console.log(error);
     }
+}
+
+const sleep = (milliseconds) => {
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
 if (require.main === module) {
