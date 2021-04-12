@@ -74,10 +74,12 @@ exports.getExpiredUsers = async (users) => {
         const _users = await db.get('users').value()
         for (let user of users) {
             if (_users[user.login]) {
-                const lastUpdated = new Date(_users[user.login].lastUpdated)
-                if (lastUpdated < expirationDate) {
-                    _users[user.login]['login'] = user.login
-                    expiredUsers.push(_users[user.login])
+                if (!_users[user.login].hasOwnProperty('bot')) { // These are GitHub Apps, don't kick them
+                    const lastUpdated = new Date(_users[user.login].lastUpdated)
+                    if (lastUpdated < expirationDate) {
+                        _users[user.login]['login'] = user.login
+                        expiredUsers.push(_users[user.login])
+                    }
                 }
             } else {
                 expiredUsers.push({login: user.login, lastUpdated: "never", type: "none"})
