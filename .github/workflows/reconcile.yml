@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  fetch-releases:
+  reconcile-database:
     runs-on: ubuntu-latest
     env:
       ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
@@ -24,7 +24,7 @@ jobs:
         run: npm ci
         working-directory: ${{ github.workspace }}/master/automation
       - name: Reconcile Users
-        run: node automation/scripts/reconile.js && mv db*.json ${{ github.workspace }}/activity/
+        run: node automation/scripts/reconcile.js && mv db*.json ${{ github.workspace }}/activity/
         working-directory: ${{ github.workspace }}/master
       - name: Update db.json
         run: |
