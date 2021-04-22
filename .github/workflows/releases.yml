@@ -30,7 +30,7 @@ jobs:
         run: npm ci
         working-directory: ${{ github.workspace }}/master/automation
       - name: Collect Releases
-        run: node automation/scripts/releases.js --owner $ORG && mv db.json $OUTFILE
+        run: node automation/scripts/releases.js --owner $ORG --days 7 && mv db.json $OUTFILE
         working-directory: ${{ github.workspace }}/master
       - name: Update db.json
         run: |
