@@ -20,7 +20,7 @@ Next, set some environment variables that most of the scripts expect
 Finally, run the scripts!
 
 ```
-node scripts/comments.js --days 7
+node scripts/issues.js --days 7
 ```
 
 ### Debugging
@@ -31,9 +31,11 @@ Setting the environment variable `DEBUG` to `inactive:*` will trigger all debug 
 
 ### Creating a new script
 
-Create a new file in the [scripts](./scripts) directory, optionally using [template.js](./scripts/template.js) as a starting point.
+Create a new file in the [scripts](./scripts) directory, optionally using [template.js](./scripts/template.js) as a
+starting point.
 
-If using the template, update the debugger to the name of your script, i.e. `inactive:comments` instead of `inactive:template`
+If using the template, update the debugger to the name of your script, i.e. `inactive:comments` instead
+of `inactive:template`
 
 ### Writing activity
 

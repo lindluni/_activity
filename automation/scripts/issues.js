@@ -1,4 +1,3 @@
-const debug = require("debug")("inactive:comments");
 const yargs = require("yargs");
 const {getGitHubApp, getAuth} = require("../lib/github");
 const utils = require("../lib/utils");
@@ -10,30 +9,47 @@ const database = require("../lib/database")
  */
 async function main(auth, days) {
     const commentsLastUpdated = new Date();
-    const since = await utils.getSince(utils.TYPE_COMMENTS, days)
+    const since = await utils.getSince(utils.TYPE_ISSUES, days)
 
     const app = getGitHubApp(auth, since);
     for await (const {octokit, repository} of app.eachRepository.iterator()) {
-        debug(`fetching issue comments for repository ${repository.full_name}`);
+        console.log(`fetching issue comments for repository ${repository.full_name}`);
         let i = 0;
 
         try {
-            const options = octokit.issues.listCommentsForRepo.endpoint.merge({
+            const listCommentsForRepo = octokit.issues.listCommentsForRepo.endpoint.merge({
                 owner: repository.owner.login,
                 repo: repository.name,
-                since,
+                per_page: 100,
+                since
             });
 
             // fetch all comments from `since` forward
-            const comments = await octokit.paginate(options);
-            debug(`repository ${repository.full_name} found ${comments.length} issue comments`);
+            const comments = await octokit.paginate(listCommentsForRepo);
+            console.log(`repository ${repository.full_name} found ${comments.length} issue comments`);
 
             for (const comment of comments) {
                 console.log([comment.user.login, comment.updated_at, "comment", comment.html_url].join(","));
                 await database.updateUser(comment.user.login, comment.updated_at, "comment", comment.html_url)
             }
+
+            const listForRepo = octokit.issues.listForRepo.endpoint.merge({
+                owner: repository.owner.login,
+                repo: repository.name,
+                per_page: 100,
+                state: 'all',
+                since
+            });
+            const issues = await octokit.paginate(listForRepo);
+            console.log(`repository ${repository.full_name} found ${issues.length} issues`);
+            for (const issue of issues) {
+                if (new Date(issue.created_at) > new Date(since) && issue.user.login !== 'va-devops-bot') {
+                    console.log([issue.user.login, issue.updated_at, "issue", issue.html_url].join(","));
+                    await database.updateUser(issue.user.login, issue.updated_at, "issue", issue.html_url)
+                }
+            }
         } catch (err) {
-            debug(err);
+            console.error(err);
 
             // try three times before giving up
             if (i++ >= 3) {
@@ -44,7 +60,6 @@ async function main(auth, days) {
     await database.setLastUpdated("comments", commentsLastUpdated.toISOString())
 }
 
-// DEBUG=inactive:* node scripts/comments.js --days 91
 if (require.main === module) {
     const auth = getAuth();
 

@@ -1,7 +1,7 @@
 const database = require('./database')
 
 exports.TYPE_AUDIT = "audit"
-exports.TYPE_COMMENTS = "comments"
+exports.TYPE_ISSUES = "issues"
 exports.TYPE_COMMITS = "commits"
 exports.TYPE_CONTRIBUTIONS = "contributions"
 exports.TYPE_RELEASES = "releases"

@@ -1,4 +1,4 @@
-name: Fetch issue comment activity
+name: Fetch issue activity
 
 on:
   schedule:
@@ -29,7 +29,7 @@ jobs:
         run: npm ci
         working-directory: ${{ github.workspace }}/master/automation
       - name: Collect Comments
-        run: node automation/scripts/comments.js --days 7 && mv db.json $OUTFILE
+        run: node automation/scripts/issues.js --days 7 && mv db.json $OUTFILE
         working-directory: ${{ github.workspace }}/master
       - name: Update db.json
         run: |
