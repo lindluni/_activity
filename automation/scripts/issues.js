@@ -29,8 +29,10 @@ async function main(auth, days) {
             console.log(`repository ${repository.full_name} found ${comments.length} issue comments`);
 
             for (const comment of comments) {
-                console.log([comment.user.login, comment.updated_at, "comment", comment.html_url].join(","));
-                await database.updateUser(comment.user.login, comment.updated_at, "comment", comment.html_url)
+                if (comment.user.login !== 'va-devops-bot') {
+                    console.log([comment.user.login, comment.updated_at, "comment", comment.html_url].join(","));
+                    await database.updateUser(comment.user.login, comment.updated_at, "comment", comment.html_url)
+                }
             }
 
             const listForRepo = octokit.issues.listForRepo.endpoint.merge({
