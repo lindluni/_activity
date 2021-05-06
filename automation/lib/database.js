@@ -94,7 +94,7 @@ exports.getExpiredUsers = async (users) => {
 exports.reconcileUsers = async () => {
     try {
         const date = new Date()
-        await fs.copyFileSync('db.json', `db-${date.getFullYear()}-${date.getDay()}-${date.getMonth()}.json`)
+        await fs.copyFileSync('db.json', `db-${date.getFullYear()}-${date.getDate()}-${date.getMonth()}.json`)
         date.setDate(date.getDate() - 90)
         const users = await db.get('users').value()
         for (let userKey of Object.keys(users)) {
