@@ -27,6 +27,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
         working-directory: ${{ github.workspace }}/master/automation
-      - name: Collect Releases
+      - name: Remove Inactive Users
         run: node automation/scripts/kick.js
         working-directory: ${{ github.workspace }}/master
