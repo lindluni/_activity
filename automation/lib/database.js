@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const low = require('lowdb')
+import { low } from 'lowdb'
 const FileSync = require('lowdb/adapters/FileSync')
 
 const adapter = new FileSync('db.json')
