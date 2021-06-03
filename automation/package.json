@@ -11,7 +11,7 @@
     "@octokit/plugin-throttling": "^3.4.2",
     "@octokit/rest": "^18.5.6",
     "debug": "^4.3.1",
-    "lowdb": "^2.1.0",
+    "lowdb": "^1.0.0",
     "yargs": "^17.0.1"
   },
   "devDependencies": {
