@@ -1,8 +1,8 @@
 const debug = require("debug")("inactive:audit");
 const yargs = require("yargs");
-const {getAuth, getOctokit} = require("../../lib/github");
-const utils = require("../../lib/utils");
-const database = require("../../lib/database")
+const {getAuth, getOctokit} = require("../lib/github");
+const utils = require("../lib/utils");
+const database = require("../lib/database")
 
 /**
  * Iterate through all repositories where our GitHub App is installed, and

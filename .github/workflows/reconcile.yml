@@ -22,9 +22,9 @@ jobs:
         run: mv ${{ github.workspace }}/activity/db.json ${{ github.workspace }}/master/db.json
       - name: Install dependencies
         run: npm ci
-        working-directory: ${{ github.workspace }}/master/automation
+        working-directory: ${{ github.workspace }}/master
       - name: Reconcile Users
-        run: node automation/scripts/reconcile.js && mv db*.json ${{ github.workspace }}/activity/
+        run: node src/reconcile.js && mv db*.json ${{ github.workspace }}/activity/
         working-directory: ${{ github.workspace }}/master
       - name: Update db.json
         run: |

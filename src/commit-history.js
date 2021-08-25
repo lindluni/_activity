@@ -1,7 +1,7 @@
 const yargs = require("yargs");
-const {getGitHubApp, getAuth} = require("../../lib/github");
-const utils = require("../../lib/utils");
-const database = require("../../lib/database")
+const {getGitHubApp, getAuth} = require("../lib/github");
+const utils = require("../lib/utils");
+const database = require("../lib/database")
 
 async function main(auth, owner, days) {
     const commitsLastUpdated = new Date();

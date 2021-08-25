@@ -1,6 +1,6 @@
 const yargs = require("yargs");
-const github = require("../../lib/github");
-const database = require('../../lib/database')
+const github = require("../lib/github");
+const database = require('../lib/database')
 
 
 async function main(token, owner) {

@@ -29,9 +29,9 @@ jobs:
         run: mv ${{ github.workspace }}/activity/db.json ${{ github.workspace }}/master/db.json
       - name: Install dependencies
         run: npm ci
-        working-directory: ${{ github.workspace }}/master/automation
+        working-directory: ${{ github.workspace }}/master
       - name: Collect Contributions
-        run: node automation/scripts/contributions.js --organization $ORG --organization-id $ORG_ID --days 7 && mv db.json $OUTFILE
+        run: node src/contributions.js --organization $ORG --organization-id $ORG_ID --days 7 && mv db.json $OUTFILE
         working-directory: ${{ github.workspace }}/master
       - name: Update db.json
         run: |
