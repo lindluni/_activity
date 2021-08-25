@@ -1,6 +1,6 @@
 const debug = require("debug")("inactive:releases");
 const yargs = require("yargs");
-const {getGitHubApp, getAuth} = require("../lib/github");
+const {getGitHubApp, getAuth} = require("../../lib/github");
 const utils = require("../../lib/utils");
 const database = require("../../lib/database")
 

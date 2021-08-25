@@ -1,4 +1,4 @@
-const github = require("../lib/github")
+const github = require("../../lib/github")
 const database = require('../../lib/database')
 
 async function main() {
