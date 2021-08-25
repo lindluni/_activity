@@ -30,7 +30,7 @@ jobs:
         run: npm ci
         working-directory: ${{ github.workspace }}/master
       - name: Collect Audit Log
-        run: node src/audit.js --organization $ORG --days 7 && mv db.json $OUTFILE
+        run: node src/audit.js && mv db.json $OUTFILE
         working-directory: ${{ github.workspace }}/master
       - name: Update db.json
         run: |
