@@ -1,6 +1,4 @@
-const debug = require("debug")("inactive:audit");
-const yargs = require("yargs");
-const {getAuth, getOctokit} = require("../lib/github");
+const github = require("../lib/github");
 const utils = require("../lib/utils");
 const database = require("../lib/database")
 
@@ -12,11 +10,16 @@ function hasAnyContributions({contributionsCollection: m}) {
  * Iterate through all repositories where our GitHub App is installed, and
  * print out all issue comments created since a given time.
  */
-async function main(auth, owner, organizationID, days) {
-    const octokit = getOctokit(auth.token);
+async function main() {
+    const owner = 'department-of-veterans-affairs'
+    const organizationID = 'MDEyOk9yZ2FuaXphdGlvbjU0MjE1NjM='
+    const days = 7
+
+    const token = github.getAuth().token;
+    const octokit = github.getOctokit(token);
     const since = await utils.getSince(utils.TYPE_CONTRIBUTIONS, days)
 
-    debug(`fetching contributions log for ${owner} and ${organizationID} since ${since}`);
+    console.log(`fetching contributions log for ${owner} and ${organizationID} since ${since}`);
 
     const CONTRIBUTIONS_QUERY = `query(
     $org: String!
@@ -86,42 +89,14 @@ async function main(auth, owner, organizationID, days) {
 
             cursor = response.organization.membersWithRole.pageInfo.endCursor;
             hasNextPage = response.organization.membersWithRole.pageInfo.hasNextPage;
-        } catch (err) {
-            debug(err);
-
-            // try three times before giving up
+        } catch (e) {
+            console.error(e);
             if (i++ >= 3) {
-                throw err;
+                throw e;
             }
         }
     } while (hasNextPage);
     await database.setLastUpdated("contributions", contributionsLastUpdated.toISOString())
 }
 
-// DEBUG=inactive:* node scripts/contributions.js --organization department-of-veterans-affairs --organizationId MDEyOk9yZ2FuaXphdGlvbjU0MjE1NjM= --days 8
-if (require.main === module) {
-    const auth = getAuth();
-
-    const {argv} = yargs
-        .option("days", {
-            alias: "d",
-            description: "Days in the past to start from",
-            global: true
-        })
-        .option("organization", {
-            alias: "o",
-            description: "GitHub organization to pull audit log from",
-            global: true,
-            demandOption: true,
-        })
-        .option("organization-id", {
-            alias: "i",
-            description: "GitHub organization GraphQL node id",
-            global: true,
-            demandOption: true,
-        });
-
-    main(auth, argv.organization, argv.organizationID, argv.days);
-}
-
-module.exports = main;
+main()

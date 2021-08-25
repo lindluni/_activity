@@ -41,8 +41,8 @@ async function main() {
                     }
                 }
             }
-        } catch (error) {
-            console.log(error)
+        } catch (e) {
+            console.error(e)
         }
     }
     await database.setLastUpdated("commits", commitsLastUpdated.toISOString())

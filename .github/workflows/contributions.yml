@@ -31,7 +31,7 @@ jobs:
         run: npm ci
         working-directory: ${{ github.workspace }}/master
       - name: Collect Contributions
-        run: node src/contributions.js --organization $ORG --organization-id $ORG_ID --days 7 && mv db.json $OUTFILE
+        run: node src/contributions.js && mv db.json $OUTFILE
         working-directory: ${{ github.workspace }}/master
       - name: Update db.json
         run: |
