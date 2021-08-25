@@ -1,101 +1,93 @@
-const yargs = require("yargs");
-const github = require("../lib/github");
+const github = require("../lib/github")
 const database = require('../lib/database')
 
-async function main(token, owner, repo) {
+async function main() {
+    const owner = 'department-of-veterans-affairs'
+    const repo = 'github-inactive-user-mentions'
+
     try {
+        const token = github.getAuth().token
         const client = await github.getOctokit(token)
-        const members = await client.paginate('GET /orgs/{org}/members', {
+        const members = await client.paginate(client.orgs.listMembers, {
             org: owner,
             role: 'member',
             per_page: 100
         });
-        const outsideCollaborators = await client.paginate('GET /orgs/{org}/outside_collaborators', {
+
+        const _outsideCollaborators = await client.paginate(client.orgs.listOutsideCollaborators, {
             org: owner,
             per_page: 100
         })
-        const expiredUsers = await database.getExpiredUsers(members)
-        const issues = await listIssues(client, owner, repo)
+        const outsideCollaborators = _outsideCollaborators.map(collaborator => collaborator.login)
+
+        const _expiredUsers = await database.getExpiredUsers(members)
+        const expiredUsers = _expiredUsers.map(user => user.login)
+
         const expirationDate = new Date()
         expirationDate.setDate(expirationDate.getDate() - 3)
-        issue :
-            for (let issue of issues) {
-                const username = issue.title
-                const issueCreated = new Date(issue.created_at)
-                if (issueCreated > expirationDate) {
-                    console.log(`Issue active, waiting to remove user: ${username}`)
-                    continue
-                }
-                const userExpired = await expiredUser(expiredUsers, username)
-                if (issue.comments > 0) {
-                    const comments = await client.issues.listComments({
-                        owner: owner,
-                        repo: repo,
-                        issue_number: issue.number,
-                    });
-                    for (let comment of comments.data) {
-                        if (comment.user.login === username) {
-                            console.log(`Preserving user due to comment: ${username}`)
-                            await createComment(client, owner, repo, issue.number, preserveAccountComment(username))
-                            await addLabels(client, owner, repo, issue.number, ["preserved"])
-                            await closeIssue(client, owner, repo, issue.number)
-                            continue issue
-                        }
-                    }
-                }
-                if (userExpired) {
-                    console.log(`Removing user: ${username}`)
-                    const isCollaborator = await isOutsideCollaborator(outsideCollaborators, username)
-                    if (isCollaborator) {
-                        await removeCollaboratorFromOrg(client, owner, username);
-                    } else {
-                        await removeUserFromOrg(client, owner, username);
-                    }
-                    await createComment(client, owner, repo, issue.number, removeAccountComment(username))
-                    await addLabels(client, owner, repo, issue.number, ["removed"]);
-                    await closeIssue(client, owner, repo, issue.number);
-                } else {
-                    console.log(`Preserving user due to new activity: ${username}`)
+
+        const issues = await listIssues(client, owner, repo)
+        for (let issue of issues) {
+            const username = issue.title
+            const issueCreated = new Date(issue.created_at)
+            if (issueCreated > expirationDate) {
+                console.log(`Issue active, waiting to remove user: ${username}`)
+                continue
+            }
+
+            if (issue.comments > 0) {
+                const _comments = await client.paginate(client.issues.listComments, {
+                    owner: owner,
+                    repo: repo,
+                    issue_number: issue.number,
+                    per_page: 100
+                });
+                const commentsUserLogins = _comments.map(comment => comment.user.login)
+                if (commentsUserLogins.includes(username)) {
+                    console.log(`Preserving user due to comment: ${username}`)
                     await createComment(client, owner, repo, issue.number, preserveAccountComment(username))
                     await addLabels(client, owner, repo, issue.number, ["preserved"])
                     await closeIssue(client, owner, repo, issue.number)
+                    continue
                 }
             }
-    } catch (error) {
-        console.log(error);
+
+            const userExpired = username !== 'va-devops-bot' && expiredUsers.includes(username)
+            if (userExpired) {
+                console.log(`Removing user: ${username}`)
+                if (outsideCollaborators.includes(username)) {
+                    await removeCollaboratorFromOrg(client, owner, username);
+                } else {
+                    await removeUserFromOrg(client, owner, username);
+                }
+                await createComment(client, owner, repo, issue.number, removeAccountComment(username))
+                await addLabels(client, owner, repo, issue.number, ["removed"]);
+                await closeIssue(client, owner, repo, issue.number);
+            } else {
+                console.log(`Preserving user due to new activity: ${username}`)
+                await createComment(client, owner, repo, issue.number, preserveAccountComment(username))
+                await addLabels(client, owner, repo, issue.number, ["preserved"])
+                await closeIssue(client, owner, repo, issue.number)
+            }
+        }
+    } catch (e) {
+        console.error(e);
     }
 }
 
 const listIssues = async (client, owner, repo) => {
     try {
-        const options = client.issues.listForRepo.endpoint.merge({
+        return client.paginate(client.issues.listForRepo, {
             owner: owner,
             repo: repo,
             state: "open",
-            per_page: 100,
             creator: "va-devops-bot",
             sort: "created",
             direction: "asc",
+            per_page: 100
         })
-        return await client.paginate(options)
-    } catch (error) {
-        throw error
-    }
-}
-
-const expiredUser = async (users, login) => {
-    try {
-        if (login === 'va-devops-bot') {
-            return false
-        }
-        for (let user of users) {
-            if (user.login === login) {
-                return user
-            }
-        }
-        return undefined
-    } catch (error) {
-        throw  error
+    } catch (e) {
+        throw new Error(`Unable to list issues: ${e.message}`)
     }
 }
 
@@ -120,9 +112,8 @@ const removeUserFromOrg = async (client, owner, login) => {
             org: owner,
             username: login,
         })
-    } catch (error) {
-        console.error(`Error removing user`, login);
-        throw error
+    } catch (e) {
+        throw new Error(`Error removing user ${login}: ${e.message}`)
     }
 }
 
@@ -132,9 +123,8 @@ const removeCollaboratorFromOrg = async (client, owner, login) => {
             org: owner,
             username: login,
         });
-    } catch (error) {
-        console.error(`Error removing collaborator`, login)
-        throw error
+    } catch (e) {
+        throw new Error(`Error removing collaborator ${login}: ${e.message}`)
     }
 }
 
@@ -146,8 +136,8 @@ const createComment = async (client, owner, repo, number, comment) => {
             issue_number: number,
             body: comment,
         });
-    } catch (error) {
-        throw error
+    } catch (e) {
+        console.error(`Unable to create comment on issue ${owner}/${repo}#${number}: ${e.message}`)
     }
 }
 
@@ -159,8 +149,8 @@ const closeIssue = async (client, owner, repo, number) => {
             issue_number: number,
             state: "closed",
         });
-    } catch (error) {
-        throw error
+    } catch (e) {
+        console.error(`Unable to close issue ${owner}/${repo}#${number}: ${e.message()}`)
     }
 }
 
@@ -172,27 +162,9 @@ const addLabels = async (client, owner, repo, number, labels) => {
             issue_number: number,
             labels: labels,
         });
-    } catch (error) {
-        throw error
+    } catch (e) {
+        console.error(`Unable to add labels [${labels}] to ${owner}/${repo}#${number}: ${e.message()}`)
     }
 }
 
-const isOutsideCollaborator = async (collaborators, login) => {
-    for (let collaborator of collaborators) {
-        if (collaborator.login === login) {
-            return true
-        }
-    }
-    return false
-}
-
-const sleep = (milliseconds) => {
-    return new Promise(resolve => setTimeout(resolve, milliseconds))
-}
-
-if (require.main === module) {
-    const auth = github.getAuth();
-    main(auth.token, 'department-of-veterans-affairs', 'github-inactive-user-mentions');
-}
-
-module.exports = main;
+main()
