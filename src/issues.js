@@ -1,5 +1,4 @@
-const yargs = require("yargs");
-const {getGitHubApp, getAuth} = require("../lib/github");
+const github = require("../lib/github");
 const utils = require("../lib/utils");
 const database = require("../lib/database")
 
@@ -7,11 +6,15 @@ const database = require("../lib/database")
  * Iterate through all repositories where our GitHub App is installed, and
  * print out all issue comments created since a given time.
  */
-async function main(auth, days) {
+async function main() {
+    const days = 7
+
+    const auth = github.getAuth();
+    const app = github.getGitHubApp(auth);
+
     const commentsLastUpdated = new Date();
     const since = await utils.getSince(utils.TYPE_ISSUES, days)
 
-    const app = getGitHubApp(auth, since);
     for await (const {octokit, repository} of app.eachRepository.iterator()) {
         console.log(`fetching issue comments for repository ${repository.full_name}`);
         let i = 0;
@@ -50,28 +53,14 @@ async function main(auth, days) {
                     await database.updateUser(issue.user.login, issue.updated_at, "issue", issue.html_url)
                 }
             }
-        } catch (err) {
-            console.error(err);
-
-            // try three times before giving up
+        } catch (e) {
+            console.error(e);
             if (i++ >= 3) {
-                throw err;
+                throw e;
             }
         }
     }
     await database.setLastUpdated("comments", commentsLastUpdated.toISOString())
 }
 
-if (require.main === module) {
-    const auth = getAuth();
-
-    const {argv} = yargs.option("days", {
-        alias: "d",
-        description: "Days in the past to start from",
-        global: true
-    });
-
-    main(auth, argv.days);
-}
-
-module.exports = main;
+main()
