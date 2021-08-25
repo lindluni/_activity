@@ -1,5 +1,5 @@
 const github = require("../lib/github")
-const database = require('../lib/database')
+const database = require('../../lib/database')
 
 async function main() {
     const owner = 'department-of-veterans-affairs'
