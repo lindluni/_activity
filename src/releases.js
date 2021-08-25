@@ -1,14 +1,17 @@
-const debug = require("debug")("inactive:releases");
-const yargs = require("yargs");
-const {getGitHubApp, getAuth} = require("../lib/github");
+const github = require("../lib/github");
 const utils = require("../lib/utils");
 const database = require("../lib/database")
 
-async function main(auth, owner, days) {
+async function main() {
+    const owner = 'department-of-veterans-affairs'
+    const days = 7
+
+    const auth = github.getAuth();
+    const app = github.getGitHubApp(auth);
+
     const releasesLastUpdate = new Date();
     const since = await utils.getSince(utils.TYPE_RELEASES, days)
 
-    const app = getGitHubApp(auth, since);
     for await (const {octokit, repository} of app.eachRepository.iterator()) {
         try {
             const releases = await octokit.paginate("GET /repos/{owner}/{repo}/releases", {
@@ -30,22 +33,4 @@ async function main(auth, owner, days) {
     await database.setLastUpdated("releases", releasesLastUpdate.toISOString())
 }
 
-if (require.main === module) {
-    const auth = getAuth();
-    const {argv} = yargs
-        .option("days", {
-            alias: "d",
-            description: "Days in the past to start from",
-            global: true
-        })
-        .options("owner", {
-            alias: "o",
-            description: "Owner or Organization with the repos",
-            global: true,
-            demandOption: true,
-        });
-
-    main(auth, argv.owner, argv.days);
-}
-
-module.exports = main;
+main()
