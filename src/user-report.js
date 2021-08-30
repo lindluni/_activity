@@ -13,8 +13,25 @@ async function main() {
             role: 'member'
         });
         const expiredUsers = await database.getExpiredUsers(members)
-        const body = `
-@${expiredUser.login}
+        console.log(`${expiredUsers.length} users found with no activity in the last 90 days`)
+        for (let expiredUser of expiredUsers) {
+            console.log(`Sending notification for ${expiredUser.login}`)
+            await client.rest.issues.create({
+                owner: "department-of-veterans-affairs",
+                repo: "github-inactive-user-mentions",
+                title: `${expiredUser.login}`,
+                body: formBody(expiredUser.login),
+            });
+            await sleep(500)
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+function formBody(user) {
+    return `
+@${user}
 
 VA policy states any account inactive over 90 days must be disabled – specifically AC-2(3).
 
@@ -27,20 +44,6 @@ If there is no response to this issue/comment in 3 business days, acknowledging 
 If you still require access after you have been removed, [follow this guide to request access again](https://department-of-veterans-affairs.github.io/github-handbook/guides/onboarding/getting-access#step-3-access-to-the-department-of-veterans-affairs-organization).
 
 For questions please respond here or email us at va-delivery@github.com`
-        console.log(`${expiredUsers.length} users found with no activity in the last 90 days`)
-        for (let expiredUser of expiredUsers) {
-            console.log(`Sending notification for ${expiredUser.login}`)
-            await client.rest.issues.create({
-                owner: "department-of-veterans-affairs",
-                repo: "github-inactive-user-mentions",
-                title: `${expiredUser.login}`,
-                body: body,
-            });
-            await sleep(500)
-        }
-    } catch (error) {
-        console.log(error);
-    }
 }
 
 const sleep = (milliseconds) => {
