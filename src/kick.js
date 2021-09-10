@@ -113,7 +113,7 @@ const removeUserFromOrg = async (client, owner, login) => {
             username: login,
         })
     } catch (e) {
-        throw new Error(`Error removing user ${login}: ${e.message}`)
+        console.error(`Error removing user ${login}: ${e.message}`)
     }
 }
 
@@ -124,7 +124,7 @@ const removeCollaboratorFromOrg = async (client, owner, login) => {
             username: login,
         });
     } catch (e) {
-        throw new Error(`Error removing collaborator ${login}: ${e.message}`)
+       console.error(`Error removing collaborator ${login}: ${e.message}`)
     }
 }
 
