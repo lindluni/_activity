@@ -9,6 +9,6 @@ jobs:
       - name: Add Users
         uses: lindluni/team-add@1.0.0
         with:
-          teams: all-va
+          teams: all-va,all-vas
           token: ${{ secrets.ADMIN_TOKEN }}
 
