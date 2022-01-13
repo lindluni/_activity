@@ -3,7 +3,7 @@ const utils = require("../lib/utils");
 const database = require("../lib/database")
 
 async function main() {
-    const owner = 'department-of-veterans-affairs'
+    const owner = 'github-org-name-goes-here'
     const days = 7
 
     const auth = github.getAuth();
