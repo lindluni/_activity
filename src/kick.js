@@ -2,7 +2,7 @@ const github = require("../lib/github")
 const database = require('../lib/database')
 
 async function main() {
-    const owner = 'department-of-veterans-affairs'
+    const owner = 'github-org-name-goes-here'
     const repo = 'github-inactive-user-mentions'
 
     try {
@@ -52,7 +52,7 @@ async function main() {
                 }
             }
 
-            const userExpired = username !== 'va-devops-bot' && expiredUsers.includes(username)
+            const userExpired = username !== 'my-devops-bot' && expiredUsers.includes(username)
             if (userExpired) {
                 console.log(`Removing user: ${username}`)
                 if (outsideCollaborators.includes(username)) {
@@ -81,7 +81,7 @@ const listIssues = async (client, owner, repo) => {
             owner: owner,
             repo: repo,
             state: "open",
-            creator: "va-devops-bot",
+            creator: "my-devops-bot",
             sort: "created",
             direction: "asc",
             per_page: 100
@@ -103,7 +103,7 @@ The reports are run bi-weekly.`;
 
 
 const removeAccountComment = (user) => {
-    return `@${user} you are being removed from the Department of Veterans Affairs organization due to inactivity.  If you still require access, please follow the steps outlined in your [GitHub Handbook](https://department-of-veterans-affairs.github.io/github-handbook/guides/onboarding/getting-access) or send an email to va-delivery@github.com`;
+    return `@${user} you are being removed from the Department of Veterans Affairs organization due to inactivity.  If you still require access, please follow the steps outlined in your [Handbook](https://fake-github-pages-link.github.io/github-handbook/guides/onboarding/getting-access) or send an email to support@fake-co.com`;
 }
 
 const removeUserFromOrg = async (client, owner, login) => {
