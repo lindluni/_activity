@@ -11,7 +11,7 @@ function hasAnyContributions({contributionsCollection: m}) {
  * print out all issue comments created since a given time.
  */
 async function main() {
-    const owner = 'department-of-veterans-affairs'
+    const owner = 'github-org-name-goes-here'
     const organizationID = 'MDEyOk9yZ2FuaXphdGlvbjU0MjE1NjM='
     const days = 7
 
