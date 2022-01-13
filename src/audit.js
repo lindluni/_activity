@@ -7,7 +7,7 @@ const database = require("../lib/database")
  * print out all issue comments created since a given time.
  */
 async function main() {
-    const owner = 'department-of-veterans-affairs'
+    const owner = 'github-org-name-goes-here'
     const days = 7
 
     const token = github.getAuth().token;
