@@ -15,7 +15,7 @@ jobs:
       INACTIVE_CLIENT_SECRET: ${{ secrets.INACTIVE_CLIENT_SECRET }}
       INACTIVE_PRIVATE_KEY: ${{ secrets.INACTIVE_PRIVATE_KEY }}
       ORG: ${{ github.repository_owner }}
-      ORG_ID: MDEyOk9yZ2FuaXphdGlvbjU0MjE1NjM=
+      ORG_ID: fakeidOk9yZ2FuaXphdGlvbjU0MjE1NjM=
       OUTFILE: /tmp/db.json
     steps:
       - uses: actions/checkout@v2
