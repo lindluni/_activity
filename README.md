@@ -1,6 +1,6 @@
 # \_activity
 
-This repository is a container for a user activity log for the Department of Veterans Affairs GitHub Enterprise Cloud organization.
+This repository is a container for a user activity log for a GitHub Enterprise Cloud organization.
 
 ## Activity log
 
