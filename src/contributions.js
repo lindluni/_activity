@@ -12,7 +12,7 @@ function hasAnyContributions({contributionsCollection: m}) {
  */
 async function main() {
     const owner = 'github-org-name-goes-here'
-    const organizationID = 'MDEyOk9yZ2FuaXphdGlvbjU0MjE1NjM='
+    const organizationID = 'fakeid9yZ2FuadGljU0MjE1NjM='
     const days = 7
 
     const token = github.getAuth().token;
